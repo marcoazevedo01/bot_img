@@ -1,0 +1,23 @@
+{
+  "name": "bot_img",
+  "version": "1.0.0",
+  "description": "Testar dominio de image para o app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "author": "Marco A. S. Azevedo",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bluesoft-cosmos-api": "^1.0.0",
+    "cron": "^1.8.2",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.12"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
