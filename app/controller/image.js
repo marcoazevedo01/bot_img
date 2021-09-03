@@ -1,6 +1,6 @@
 const db = require('../../config/db');
 const imageDAO = require('../models/imageDAO');
-//const imageDAO = new imageDAO(db);
+const imageDAO = new imageDAO(db);
 
 class ImageControll {
 
@@ -25,6 +25,15 @@ class ImageControll {
     save() {
         return async (req, resp) => {
             try {
+                if (req.file) {
+                    await filehelper.compressImage(req.file, 350)
+                    let data = {
+                        'name': req.file.filename.split('.')[0] + '.webp',
+                        'barCode': '',
+                        'url': '',
+                    }
+                    await imageDAO.insert(data)
+                }
                 resp.status(200).json({
                     'msg': 'ok'
                 });
