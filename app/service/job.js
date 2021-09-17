@@ -1,11 +1,11 @@
-const Controller = new require('../app/controller/image');
+const Controller = require('../controller/image.js');
 
 module.exports = Job => {
-    var CronJob = require('cron').CronJob;                         
-    var job = new CronJob('1 * * * * *', function () {//* * * 1 * *  um dia
-        try { 
+    var CronJob = require('cron').CronJob;
+    var job = new CronJob('1 * * * * *', function () { //* * * 1 * *  um dia
+        try {
             const controller = new Controller();
-            controller.get();
+            //controller.save();
         } catch {
             console.log('cron falhou');
         }

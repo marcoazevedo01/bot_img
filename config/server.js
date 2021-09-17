@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const job = require('./job');
+const job = require('../app/service/job');
 const app = express();
 
 app.use(
@@ -10,7 +10,6 @@ app.use(
     express.urlencoded({
         extended: true
     }),
-    
 );
 
 job();
