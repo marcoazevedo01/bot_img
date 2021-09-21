@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const job = require('../app/service/job');
+const jobService = require('../app/service/jobService');
 const app = express();
 
 app.use(
@@ -12,9 +12,9 @@ app.use(
     }),
 );
 
-job();
+jobService();
 
-const routs = require('../app/routs/index');
+const routs = require('../app/routes/index');
 routs(app);
 
 module.exports = app;

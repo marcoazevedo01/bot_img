@@ -1,14 +1,15 @@
-const db = require('../../config/db');
-const ImageDAO = require('../models/imageDAO');
-const imageDAO = new ImageDAO(db);
-const cosmos = require('bluesoft-cosmos-api');
-cosmos.setToken(process.env.KEY_COSMOS);
+const mongoPool = require('../../config/mongoPool');
+const ImageDAO = require('../models/image');
+const productCtrl = require('../controller/product');
+const httpService = require('../service/httpService');
+const fileService = require('../service/fileService');
 
-class ImageControll {
+class ImageCtrl {
 
-    list() {
+    listAll() {
         return async (req, resp) => {
             try {
+                const imageDAO = new ImageDAO(mongoPool);
                 resp.status(200).json(await imageDAO.searchAll());
             } catch (erro) {
                 resp.status(500).json(erro);
@@ -16,34 +17,36 @@ class ImageControll {
         }
     }
 
-    save() {
+    listOneByCodBar() {
         return async (req, resp) => {
             try {
-                const fs = require('fs');
-                const axios = require('axios');
-                //(pensar na paginacao dos itens)
-                //get a lista de produtos com base no param limit de consulta na api
-                //verificar se na lista retornada tem algum produto ja baixado. if remover
-                //for pelo limit
-                //delay de 1s entre as req(para evitar negacao de servico)
-                var barCode = '7897780207131';
-                const apiImage = await cosmos.gtins(barCode);
-                var url = 'http://cdn-cosmos.bluesoft.com.br/products/' + barCode;
-                var bufferImage = await axios({
-                    url,
-                    responseType: 'stream',
-                })
-                //converter img
-                await bufferImage.data.pipe(fs.createWriteStream(`./app/public/img/${barCode}.${apiImage.data.brand.picture.split('.')[1]}`));
-                //salvar como bytes no mongo
-                resp.status(200).json({
-                    'msg': 'ok'
-                });
+                const imageDAO = new ImageDAO(mongoPool);
+                resp.status(200).json(await imageDAO.searchOneByCod(req.params.cod));
             } catch (erro) {
                 resp.status(500).json(erro);
             }
         }
     }
+
+    static async getAndSavedImages() {
+        try {
+            const imageDAO = new ImageDAO(mongoPool);
+            const pgListProducts = await productCtrl.list(2, 3)
+            await pgListProducts.rows.forEach(async produto => {
+                if (produto.codigo_barras == null || produto.codigo_barras == '') return;
+                const barCode = produto.codigo_barras.split('.')[0];
+                const imgBuffer = await httpService.getImage(`http://cdn-cosmos.bluesoft.com.br/products/${barCode}`);
+                if (!imgBuffer) return;
+                await imageDAO.insertOrUpdate({
+                    'barCode': barCode,
+                    'imgBuffer': await fileService.compressImage(imgBuffer)
+                });
+            });
+        } catch (erro) {
+            console.log(erro);
+        }
+    }
+
 }
 
-module.exports = ImageControll;
+module.exports = ImageCtrl;
