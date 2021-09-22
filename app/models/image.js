@@ -7,7 +7,7 @@ class ImageDAO {
     }
 
     async searchAll() {
-        return this.collection.then(dbo => dbo.find().toArray());
+        return this.collection.then(dbo => dbo.find({},{projection: {_id: 0}}).toArray());
     }
 
     async searchOneByCod(cod) {
@@ -22,7 +22,7 @@ class ImageDAO {
         }, {
             $set: image
         }, {
-            upsert: true
+            upsert: true,
         }));
     }
 }

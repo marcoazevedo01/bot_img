@@ -28,22 +28,47 @@ class ImageCtrl {
         }
     }
 
-    static async getAndSavedImages() {
-        try {
-            const imageDAO = new ImageDAO(mongoPool);
-            const pgListProducts = await productCtrl.list(2, 3)
-            await pgListProducts.rows.forEach(async produto => {
-                if (produto.codigo_barras == null || produto.codigo_barras == '') return;
-                const barCode = produto.codigo_barras.split('.')[0];
-                const imgBuffer = await httpService.getImage(`http://cdn-cosmos.bluesoft.com.br/products/${barCode}`);
-                if (!imgBuffer) return;
-                await imageDAO.insertOrUpdate({
-                    'barCode': barCode,
-                    'imgBuffer': await fileService.compressImage(imgBuffer)
+    updateFromUrl() {
+        return async (req, resp) => {
+            try {
+                const imageDAO = new ImageDAO(mongoPool);
+                resp.status(200).json(await imageDAO.insertOrUpdate({
+                    'barCode': req.body.barCode,
+                    'imgBuffer': req.body.imgBuffer
+                }));
+            } catch (erro) {
+                resp.status(500).json(erro);
+            }
+        }
+    }
+
+    updateAll() {
+        return async (req, resp) => {
+            try {
+                var skip = 0;
+                const imageDAO = new ImageDAO(mongoPool);
+                while (skip <= await productCtrl.getLength()) {
+                    var limit = skip + 50;
+                    console.log('de: ' + skip + ' ate: ' + limit);
+                    const pgListProducts = await productCtrl.list(skip, limit);
+                    await pgListProducts.rows.forEach(async produto => {
+                        if (produto.codigo_barras == null || produto.codigo_barras == '') return;
+                        const barCode = produto.codigo_barras.split('.')[0];
+                        const imgBuffer = await httpService.getImage(`http://cdn-cosmos.bluesoft.com.br/products/${barCode}`);
+                        if (!imgBuffer) return;
+                        await imageDAO.insertOrUpdate({
+                            'barCode': barCode,
+                            'imgBuffer': await fileService.compressImage(imgBuffer, barCode)
+                        });
+                    });
+                    skip += 50;
+                }
+                resp.status(200).json({
+                    'result': 'imagens atualizadas'
                 });
-            });
-        } catch (erro) {
-            console.log(erro);
+            } catch (erro) {
+                resp.status(500).json(erro);
+            }
         }
     }
 

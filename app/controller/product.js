@@ -8,6 +8,15 @@ class ProductCtrl {
       return {'Erro':erro}
     }
   }
+
+  static async getLength() {
+    try {
+      var resp = await pgPool.query(`SELECT COUNT(id) from produtos`);
+      return resp.rows[0].count;
+    } catch (erro) {
+      return {'Erro':erro}
+    }
+  }
 }
 
 
