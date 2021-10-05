@@ -2,8 +2,13 @@ class ImageDAO {
 
     constructor(db) {
         this.collection = (async () => {
-            return db.then(dbo => dbo.collection('image'));
+            return db.then(dbo => dbo.collection('imagens'));
         })();
+    }
+
+    async search(array) {
+      console.log(array);
+        return this.collection.then(dbo => dbo.find({'barCode': {$in: array}},{projection: {_id: 0}}).toArray());
     }
 
     async searchAll() {
@@ -23,6 +28,12 @@ class ImageDAO {
             $set: image
         }, {
             upsert: true,
+        }));
+    }
+
+    async removeOneByCod(cod) {
+        return this.collection.then(dbo => dbo.deleteOne({
+            'barCode': cod
         }));
     }
 }

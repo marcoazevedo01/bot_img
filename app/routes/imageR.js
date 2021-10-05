@@ -8,6 +8,10 @@ module.exports = (app) => {
         .post(imageCtrl.updateAll())
 
     app.route('/image/:cod')
-        .get(imageCtrl.listOneByCodBar())
+        .get(imageCtrl.listOneByBarCod())
+        .post(imageCtrl.addFromBarCod())
+        .delete(imageCtrl.removeByCodBar())
 
+    app.route('/images/array')
+        .post(imageCtrl.listPag())
 };

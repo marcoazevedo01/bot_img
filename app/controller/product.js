@@ -1,22 +1,19 @@
-const pgPool = require('../../config/pgPool');
+const ProductDAO = require('../models/product');
+const PgProductDao = require('../models/pgProduct');
 
 class ProductCtrl {
-  static async list(skip, limit) {
-    try {
-      return await pgPool.query(`SELECT * FROM produtos ORDER BY id OFFSET ${skip} limit ${limit}`);
-    } catch (erro) {
-      return {'Erro':erro}
+
+  setImgToMongo() {
+    return async (req, resp) => {
+      try {       
+        const productDAO = new ProductDAO(mongoPool);
+        resp.status(200).json(await productDAO.insert(await PgProductDao.getAll().then((value) => value.rows)));
+      } catch (erro) {
+        resp.status(500).json(erro);
+      }
     }
   }
 
-  static async getLength() {
-    try {
-      var resp = await pgPool.query(`SELECT COUNT(id) from produtos`);
-      return resp.rows[0].count;
-    } catch (erro) {
-      return {'Erro':erro}
-    }
-  }
 }
 
 
