@@ -7,7 +7,6 @@ class ImageDAO {
     }
 
     async search(array) {
-      console.log(array);
         return this.collection.then(dbo => dbo.find({'barCode': {$in: array}},{projection: {_id: 0}}).toArray());
     }
 

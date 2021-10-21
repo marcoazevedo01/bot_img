@@ -12,7 +12,6 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
-    "bluesoft-cosmos-api": "^1.0.0",
     "color": "^4.0.1",
     "cors": "^2.8.5",
     "cron": "^1.8.2",

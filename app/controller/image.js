@@ -79,12 +79,14 @@ class ImageCtrl {
                 const imageDAO = new ImageDAO(mongoPool);
                 const fim = await PgProductDao.getLength();
                 var skip = 0;
+                var countAtt = 0;
                 while (skip <= fim) {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     const pgListProducts = await PgProductDao.list(skip, 20);
                     await pgListProducts.rows.forEach(async produto => {
                         if (produto.codigo_barras == null || produto.codigo_barras == '') return;
                         const barCode = produto.codigo_barras.split('.')[0];
+                        if(await imageDAO.searchOneByCod(barCode) != null) return countAtt++;
                         const imgBuffer = await httpService.getImage(`http://cdn-cosmos.bluesoft.com.br/products/${barCode}`);
                         if (!imgBuffer) return;
                         await imageDAO.insertOrUpdate({
@@ -95,7 +97,7 @@ class ImageCtrl {
                     skip += 20;
                 }
                 resp.status(200).json({
-                    'result': 'imagens atualizadas'
+                    'msg': `${fim} produtos percorridos. \n ${fim-countAtt} Novas imagens baixadas, convetidas e salvas`
                 });
             } catch (erro) {
                 resp.status(500).json(erro);

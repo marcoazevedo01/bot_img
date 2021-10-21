@@ -1,10 +1,8 @@
-const imageCtrl = require('../controller/image.js');
-
-module.exports = () => {
+module.exports = () => {//nao esta sendo ultilizado
     var CronJob = require('cron').CronJob;
     var job = new CronJob('* * * * * *', () => { //* * * 1 * *  um dia
         try {
-            //imageCtrl.getAndSavedImages(await productCtrl.getLength());18000
+           console.log('cron ativo');
         } catch {
             console.log('cron falhou');
         }
